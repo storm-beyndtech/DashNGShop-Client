@@ -1,7 +1,9 @@
 // components/products/ProductFilter.tsx
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronDown, ChevronUp } from 'lucide-react'
+import { useAppSelector } from '@/redux/hooks'
+import { selectProducts } from '@/redux/selectors/productsSelectors'
 
 interface ProductFilterProps {
   isOpen: boolean
@@ -37,6 +39,13 @@ const ProductFilter = ({
     rating: true,
     availability: true
   })
+
+  const products = useAppSelector(selectProducts);
+
+    const categories = useMemo(() => {
+      const categorySet = new Set(products.map((p) => p.category).filter(Boolean));
+      return Array.from(categorySet).map((name) => ({ id: name.toLowerCase(), name }));
+    }, [products]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -204,7 +213,7 @@ const ProductFilter = ({
                   >
                     All Categories
                   </button>
-                  {categories.map((category) => (
+                  {categories.map((category:any) => (
                     <button
                       key={category.id}
                       onClick={() => handleCategoryChange(category.name)}
