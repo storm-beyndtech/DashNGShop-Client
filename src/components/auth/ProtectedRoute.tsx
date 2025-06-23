@@ -2,8 +2,7 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import PageLoader from "../PageLoader";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -17,12 +16,7 @@ const ProtectedRoute = ({ children, requiredRole, requireAuth = true }: Protecte
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-neutral-600" />
-          <p className="text-neutral-600">Loading...</p>
-        </motion.div>
-      </div>
+      <PageLoader />
     );
   }
 
