@@ -206,6 +206,26 @@ const AdminDashboard = () => {
 			});
 		});
 
+		const parseTimeAgo = (timeString: string): number => {
+			if (timeString === "Just now") return 0;
+			const match = timeString.match(/(\d+)\s+(minute|hour|day)/);
+			if (!match) return 999999;
+
+			const value = parseInt(match[1]);
+			const unit = match[2];
+
+			switch (unit) {
+				case "minute":
+					return value;
+				case "hour":
+					return value * 60;
+				case "day":
+					return value * 60 * 24;
+				default:
+					return 999999;
+			}
+		};
+
 		// Sort all activities by most recent and limit to 8
 		return activities
 			.sort((a: any, b: any) => {
@@ -243,26 +263,6 @@ const AdminDashboard = () => {
 
 		return checks;
 	}, [products, orders, users, error]);
-
-	const parseTimeAgo = (timeString: string): number => {
-		if (timeString === "Just now") return 0;
-		const match = timeString.match(/(\d+)\s+(minute|hour|day)/);
-		if (!match) return 999999;
-
-		const value = parseInt(match[1]);
-		const unit = match[2];
-
-		switch (unit) {
-			case "minute":
-				return value;
-			case "hour":
-				return value * 60;
-			case "day":
-				return value * 60 * 24;
-			default:
-				return 999999;
-		}
-	};
 
 	const handleRefresh = () => {
 		dispatch(fetchProducts());
