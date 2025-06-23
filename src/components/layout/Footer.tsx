@@ -41,7 +41,7 @@ const Footer = () => {
 						<div className="lg:col-span-2">
 							{/* Logo */}
 							<Link to="/">
-								<img src="/logo-light.svg" alt="Dash NG logo" width={100} />
+								<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={100} />
 							</Link>
 
 							<p className="text-neutral-300 mb-6 max-w-md mt-5">

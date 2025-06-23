@@ -122,7 +122,11 @@ const RegisterPage = () => {
 				<div className="w-fit mb-5 mx-auto">
 					{/* Logo */}
 					<Link to="/">
-						<img src="/logo.svg" alt="Dash NG logo" width={120} />
+						<img
+							src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown"
+							alt="Dash NG logo"
+							width={120}
+						/>
 					</Link>
 				</div>
 

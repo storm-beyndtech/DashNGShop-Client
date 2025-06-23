@@ -31,7 +31,7 @@ const CustomerSidebar = () => {
 			{/* Logo */}
 			<div className="flex h-16 max-lg:hidden shrink-0 items-center px-6 border-b border-neutral-200">
 				<Link to="/">
-					<img src="logo.svg" alt="Dash NG logo" width={70} />
+					<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={70} />
 				</Link>
 			</div>
 
@@ -175,7 +175,7 @@ const CustomerSidebar = () => {
 								{/* Close button */}
 								<div className="flex h-16 items-center justify-between px-6 border-b border-neutral-200">
 									<Link to="/">
-										<img src="logo.svg" alt="Dash NG logo" width={70} />
+										<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={70} />
 									</Link>
 									<button
 										onClick={() => setIsMobileOpen(false)}
