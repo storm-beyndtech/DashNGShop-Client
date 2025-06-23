@@ -6,7 +6,7 @@ const PageLoader = () => {
           <img 
             src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" 
             alt="Logo" 
-            className="w-28 animate-pulse relative z-10"
+            className="w-28 animate-pulse absolute inset-0 z-10"
             style={{
               filter: 'brightness(0.8)',
               animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
@@ -14,7 +14,7 @@ const PageLoader = () => {
           />
           
           {/* Cool spinner ring */}
-          <div className="absolute inset-0 w-24 h-24 -ml-2 -mt-2">
+          <div className="absolute inset-0 w-32 h-32 -ml-2 -mt-2">
             <div className="w-full h-full border-2 border-gray-200 rounded-full animate-spin"
                  style={{
                    borderTopColor: '#9ca3af',
