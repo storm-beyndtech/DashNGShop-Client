@@ -125,7 +125,7 @@ const Header = () => {
 				<div className="flex items-center justify-between h-16">
 					{/* Logo */}
 					<Link to="/">
-						<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={70} />
+						<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={55} />
 					</Link>
 
 					{/* Desktop Navigation */}
