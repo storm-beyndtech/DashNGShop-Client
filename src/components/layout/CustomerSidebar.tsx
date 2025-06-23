@@ -47,7 +47,7 @@ const CustomerSidebar = () => {
 									onClick={() => setIsMobileOpen(false)}
 									className={`group flex gap-x-3 rounded-md p-3 text-sm font-medium transition-colors ${
 										isActive
-											? "bg-primary-600 text-white"
+											? "bg-blue-600 text-white"
 											: "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
 									}`}
 								>
@@ -89,8 +89,8 @@ const CustomerSidebar = () => {
 					{user ? (
 						<>
 							<div className="flex items-center space-x-3 mb-3">
-								<div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-									<span className="text-primary-600 font-medium text-sm">
+								<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+									<span className="text-blue-600 font-medium text-sm">
 										{user?.firstName?.[0]}
 										{user?.lastName?.[0]}
 									</span>
@@ -114,13 +114,13 @@ const CustomerSidebar = () => {
 						<div className="space-y-2">
 							<Link
 								to="/login"
-								className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors"
+								className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
 							>
 								Sign In
 							</Link>
 							<Link
 								to="/register"
-								className="flex items-center justify-center px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-md hover:bg-primary-50 transition-colors"
+								className="flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
 							>
 								Create Account
 							</Link>
