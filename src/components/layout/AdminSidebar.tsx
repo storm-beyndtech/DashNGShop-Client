@@ -8,9 +8,7 @@ import {
 	Boxes,
 	Shield,
 	Settings,
-	Database,
 	FileText,
-	Activity,
 	X,
 	Menu,
 	LogOut,
@@ -30,8 +28,6 @@ const AdminSidebar = () => {
 		{ name: "Inventory Management", href: "/admin/Inventory", icon: Boxes },
 		{ name: "System Settings", href: "/admin/system", icon: Settings },
 		{ name: "Security", href: "/admin/security", icon: Shield },
-		{ name: "Database", href: "/admin/database", icon: Database },
-		{ name: "Activity Logs", href: "/admin/logs", icon: Activity },
 		{ name: "Reports", href: "/admin/reports", icon: FileText },
 	];
 
