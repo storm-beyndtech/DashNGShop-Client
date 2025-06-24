@@ -264,14 +264,6 @@ const Header = () => {
 																<Settings className="w-4 h-4" />
 																<span>Addresses</span>
 															</Link>
-															<Link
-																to="/customer/payment-methods"
-																className="flex items-center space-x-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-																onClick={() => setIsUserMenuOpen(false)}
-															>
-																<Settings className="w-4 h-4" />
-																<span>Payment Methods</span>
-															</Link>
 														</>
 													)}
 
