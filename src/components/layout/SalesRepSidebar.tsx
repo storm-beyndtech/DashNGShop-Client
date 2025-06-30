@@ -2,8 +2,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, TrendingUp, BarChart3, Settings, X, Menu, LogOut, Home, PackagePlus } from "lucide-react";
+import {
+	ShoppingCart,
+	TrendingUp,
+	BarChart3,
+	Settings,
+	X,
+	Menu,
+	LogOut,
+	Home,
+	PackagePlus,
+} from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import Logo from "../Logo";
 
 const SalesRepSidebar = () => {
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -29,9 +40,7 @@ const SalesRepSidebar = () => {
 		<div className="flex h-full flex-col">
 			{/* Logo */}
 			<div className="flex max-lg:hidden h-16 shrink-0 items-center px-6 border-b border-neutral-200">
-				<Link to="/">
-					<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={55} />
-				</Link>
+				<Logo />
 			</div>
 
 			{/* Navigation */}
@@ -156,9 +165,7 @@ const SalesRepSidebar = () => {
 							<div className="flex h-full flex-col">
 								{/* Close button */}
 								<div className="flex h-16 items-center justify-between px-6 border-b border-neutral-200">
-									<Link to="/">
-										<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={55} />
-									</Link>
+									<Logo />
 									<button
 										onClick={() => setIsMobileOpen(false)}
 										className="p-2 hover:bg-neutral-100 rounded-md transition-colors"

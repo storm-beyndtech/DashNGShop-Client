@@ -19,14 +19,15 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { useAppSelector } from "@/redux/hooks";
 import { selectWishlistIds } from "@/redux/selectors/wishlistSelectors";
+import Logo from "../Logo";
 
 const Header = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const { isAuthenticated, user, logout } = useAuth();
-  const { itemCount } = useCart();
-    const countWishList = useAppSelector(selectWishlistIds).length;
+	const { itemCount } = useCart();
+	const countWishList = useAppSelector(selectWishlistIds).length;
 	const navigate = useNavigate();
 
 	const navigation = [
@@ -124,9 +125,7 @@ const Header = () => {
 			<div className="container">
 				<div className="flex items-center justify-between h-16">
 					{/* Logo */}
-					<Link to="/">
-						<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={55} />
-					</Link>
+					<Logo />
 
 					{/* Desktop Navigation */}
 					<nav className="hidden lg:flex items-center space-x-8">
