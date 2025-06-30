@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToastUtils } from "@/services/toast";
+import logo from "../../assets/logo.png";
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ const LoginPage = () => {
 				<div className="w-fit mb-5 mx-auto">
 					{/* Logo */}
 					<Link to="/">
-						<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={120} />
+						<img src={logo} alt="Dash NG logo" width={120} />
 					</Link>
 				</div>
 

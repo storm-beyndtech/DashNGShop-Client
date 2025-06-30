@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import logo from "../../assets/logo.png";
 
 const RegisterPage = () => {
 	const [formData, setFormData] = useState({
@@ -123,7 +124,7 @@ const RegisterPage = () => {
 					{/* Logo */}
 					<Link to="/">
 						<img
-							src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown"
+							src={logo}
 							alt="Dash NG logo"
 							width={120}
 						/>
