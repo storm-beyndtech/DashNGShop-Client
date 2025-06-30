@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import Logo from "../Logo";
 
 const Footer = () => {
 	const currentYear = new Date().getFullYear();
@@ -40,9 +41,7 @@ const Footer = () => {
 						{/* Brand Section */}
 						<div className="lg:col-span-2">
 							{/* Logo */}
-							<Link to="/">
-								<img src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown" alt="Dash NG logo" width={100} />
-							</Link>
+							<Logo />
 
 							<p className="text-neutral-300 mb-6 max-w-md mt-5">
 								Elevate your style with our curated collection of premium clothing and accessories. Where
