@@ -32,7 +32,10 @@ const productSlice = createSlice({
 			}
 		},
 		addNewProduct: (state, action: PayloadAction<Product>) => {
-			state.products.unshift(action.payload);
+			const exists = state.products.find((p) => p.id === action.payload.id);
+			if (!exists) {
+				state.products.unshift(action.payload);
+			}
 		},
 		resetProductState: (state) => {
 			state.products = [];

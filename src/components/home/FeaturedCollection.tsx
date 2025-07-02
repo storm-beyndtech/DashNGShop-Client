@@ -1,9 +1,13 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Star, Eye, Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAppSelector } from "@/redux/hooks";
-import { selectFeaturedProducts, selectProductError, selectProductLoading } from "@/redux/selectors/productsSelectors";
+import {
+	selectFeaturedProducts,
+	selectProductError,
+	selectProductLoading,
+} from "@/redux/selectors/productsSelectors";
 
 interface FeaturedCollectionProps {
 	className?: string;
@@ -11,12 +15,9 @@ interface FeaturedCollectionProps {
 
 const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 	const [activeSlide, setActiveSlide] = useState(0);
-	const featuredRef = useRef(null);
 	const featuredProducts = useAppSelector(selectFeaturedProducts);
 	const isLoading = useAppSelector(selectProductLoading);
-  const error = useAppSelector(selectProductError);
-  const isFeaturedInView = useInView(featuredRef, { once: true, margin: "-100px" });
-
+	const error = useAppSelector(selectProductError);
 
 	// Auto-rotate featured products
 	useEffect(() => {
@@ -71,18 +72,12 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 	}
 
 	return (
-		<motion.section
-			ref={featuredRef}
-			initial={{ opacity: 0 }}
-			animate={isFeaturedInView ? { opacity: 1 } : {}}
-			transition={{ duration: 0.8 }}
-			className={`py-20 ${className}`}
-		>
+		<section className={`py-20 ${className}`}>
 			<div className="container">
 				{/* Section Header */}
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
-					animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
+					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6, delay: 0.2 }}
 					className="text-center mb-16"
 				>
@@ -94,7 +89,7 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 							<Crown className="w-6 h-6 text-amber-500" />
 						</motion.div>
 						<span className="text-sm font-medium text-neutral-600 tracking-wider uppercase">
-							Curated Selection
+							Featured Selection
 						</span>
 						<motion.div
 							animate={{ rotate: -360 }}
@@ -103,14 +98,13 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 							<Crown className="w-6 h-6 text-amber-500" />
 						</motion.div>
 					</div>
-					<h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-neutral-900 mb-4">
-						<span className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 bg-clip-text text-transparent">
-							Featured
-						</span>{" "}
-						<span className="text-neutral-900">Collection</span>
+					<h2 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-neutral-900 mb-4">
+						<span className="max-sm:block">Spotlight</span>
+						{" "}
+						<span className="max-sm:block text-primary-700">Collection</span>
 					</h2>
 					<p className="text-xl text-neutral-600 max-w-2xl mx-auto">
-						Handpicked premium pieces that define modern elegance
+						Our coveted pieces, for the discerning fashion geeks.
 					</p>
 				</motion.div>
 
@@ -119,17 +113,22 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 					{/* Main Featured Product */}
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
-						animate={isFeaturedInView ? { opacity: 1, x: 0 } : {}}
+						animate={{ opacity: 1, x: 0 }}
 						transition={{ duration: 0.8, delay: 0.4 }}
 						className="relative"
 					>
 						<div className="relative h-96 lg:h-[500px] rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-200 shadow-2xl">
 							{featuredProducts[activeSlide] && (
 								<>
-									<img
+									<motion.img
+										key={activeSlide}
 										src={featuredProducts[activeSlide].images?.[0]}
 										alt={featuredProducts[activeSlide].name}
-										className="w-full h-full object-cover transition-all duration-700"
+										className="w-full h-full object-cover"
+										initial={{ opacity: 0, scale: 1.1 }}
+										animate={{ opacity: 1, scale: 1 }}
+										exit={{ opacity: 0, scale: 0.95 }}
+										transition={{ duration: 0.8, ease: "easeInOut" }}
 										onError={(e) => {
 											e.currentTarget.src = "/placeholder-image.jpg";
 										}}
@@ -139,7 +138,13 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 									<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
 									{/* Product Info */}
-									<div className="absolute bottom-6 left-6 right-6 text-white">
+									<motion.div
+										key={`info-${activeSlide}`}
+										className="absolute bottom-6 left-6 right-6 text-white"
+										initial={{ opacity: 0, y: 30 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ duration: 0.6, delay: 0.3 }}
+									>
 										<div className="flex items-center gap-2 mb-2">
 											<Star className="w-4 h-4 text-yellow-400 fill-current" />
 											<span className="text-sm font-medium">Featured Pick</span>
@@ -150,7 +155,7 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 										<p className="text-lg font-semibold">
 											{formatPrice(featuredProducts[activeSlide].price)}
 										</p>
-									</div>
+									</motion.div>
 								</>
 							)}
 
@@ -190,7 +195,7 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 					{/* Featured Products Grid */}
 					<motion.div
 						initial={{ opacity: 0, x: 50 }}
-						animate={isFeaturedInView ? { opacity: 1, x: 0 } : {}}
+						animate={{ opacity: 1, x: 0 }}
 						transition={{ duration: 0.8, delay: 0.6 }}
 						className="grid grid-cols-2 gap-4"
 					>
@@ -198,7 +203,7 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 							<motion.div
 								key={product.id}
 								initial={{ opacity: 0, y: 30 }}
-								animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
+								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
 							>
 								<Link to={`/products/${product.id}`} className="group block">
@@ -226,13 +231,13 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 				{/* CTA Button */}
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
-					animate={isFeaturedInView ? { opacity: 1, y: 0 } : {}}
+					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.6, delay: 1.2 }}
 					className="text-center mt-12"
 				>
 					<Link
 						to="/products?featured=true"
-						className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+						className="inline-flex items-center gap-3 bg-primary-950 text-primary-100 px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
 					>
 						<Eye className="w-5 h-5" />
 						View All Featured
@@ -240,7 +245,7 @@ const FeaturedCollection = ({ className = "" }: FeaturedCollectionProps) => {
 					</Link>
 				</motion.div>
 			</div>
-		</motion.section>
+		</section>
 	);
 };
 

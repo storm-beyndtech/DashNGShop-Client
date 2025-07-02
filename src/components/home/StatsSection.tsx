@@ -5,33 +5,33 @@ const StatsSection = () => {
 	const stats = [
 		{
 			id: 1,
-			icon: <Star className="w-8 h-8 text-yellow-400" strokeWidth={1} />,
+			icon: <Star className="sm:w-8 sm:h-8 w-4 h-4 text-yellow-400" strokeWidth={1} />,
 			value: 4.9,
-			label: "Customer Rating",
+			label: "Rating",
 			suffix: "",
 			decimals: 1,
 		},
 		{
 			id: 2,
-			icon: <Users className="w-8 h-8 text-blue-500" strokeWidth={1} />,
+			icon: <Users className="sm:w-8 sm:h-8 w-4 h-4 text-blue-500" strokeWidth={1} />,
 			value: 50,
-			label: "Happy Customers",
+			label: "Customers",
 			suffix: "K+",
 			decimals: 0,
 		},
 		{
 			id: 3,
-			icon: <ShoppingBag className="w-8 h-8 text-purple-600" strokeWidth={1} />,
+			icon: <ShoppingBag className="sm:w-8 sm:h-8 w-4 h-4 text-purple-600" strokeWidth={1} />,
 			value: 200,
-			label: "Premium Products",
+			label: "Products",
 			suffix: "+",
 			decimals: 0,
 		},
 		{
 			id: 4,
-			icon: <ThumbsUp className="w-8 h-8 text-green-500" strokeWidth={1} />,
+			icon: <ThumbsUp className="sm:w-8 sm:h-8 w-4 h-4 text-green-500" strokeWidth={1} />,
 			value: 98,
-			label: "Satisfaction Rate",
+			label: "Satisfaction",
 			suffix: "%",
 			decimals: 0,
 		},
@@ -86,7 +86,7 @@ const StatsSection = () => {
 		const formattedCount = count.toFixed(decimals);
 
 		return (
-			<div ref={elementRef} className="text-3xl font-semibold">
+			<div ref={elementRef} className="text-lg sm:text-3xl font-semibold">
 				{formattedCount}
 				{suffix}
 			</div>
@@ -96,19 +96,19 @@ const StatsSection = () => {
 	return (
 		<section className="py-10 bg-primary-950 text-white">
 			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-12">
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7">
 					{stats.map((stat, index) => (
 						<div
 							key={stat.id}
-							className="flex gap-5 bg-primary-900/40 rounded-xl p-5  hover:bg-primary-700/50 transition-colors opacity-0"
+							className="flex items-center gap-3 sm:gap-5 bg-black/20 rounded-xl sm:p-5 p-4 hover:bg-primary-700/50 transition-colors opacity-0"
 							style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
 						>
-							<div className="w-16 h-16 rounded-full bg-primary-950/90 flex items-center justify-center">
+							<div className="flex-shrink-0 sm:w-16 sm:h-16 w-10 h-10 rounded-full bg-primary-950/90 flex items-center justify-center">
 								{stat.icon}
 							</div>
 							<div className="">
 								<CountUpAnimation value={stat.value} decimals={stat.decimals} suffix={stat.suffix} />
-								<p className="text-primary-300 mt-1">{stat.label}</p>
+								<p className="text-primary-300 mt-1 max-sm:text-xs">{stat.label}</p>
 							</div>
 						</div>
 					))}
