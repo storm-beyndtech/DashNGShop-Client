@@ -1,9 +1,11 @@
+import logo from "../assets/logo.png";
+
 const PageLoader = () => {
 	return (
 		<div className="w-screen h-screen fixed inset-0 bg-white flex items-center justify-center">
 			<div className="w-36 h-36 flex items-center justify-center relative">
 				<img
-					src="https://res-console.cloudinary.com/ddb1vjioq/thumbnails/v1/image/upload/v1750676755/ZGFzaG5nLWxvZ29fYnVmNWwy/drilldown"
+					src={logo}
 					alt="Logo"
 					className="w-24 animate-pulse z-10"
 					style={{

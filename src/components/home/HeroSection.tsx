@@ -60,17 +60,13 @@ const HeroSection = () => {
 						</motion.p>
 
 						<motion.h1
-							className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[6.5rem] font-serif font-bold leading-tight 
-	           text-transparent bg-clip-text 
-	           bg-gradient-to-r from-primary-900 via-black to-primary-950"
+							className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[6.5rem] font-serif font-semibold leading-tight text-primary-950"
 							initial={{ opacity: 0, y: 30 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.8, delay: 0.2 }}
 						>
 							Next Level
-							<span className="block mt-1 md:mt-2 bg-gradient-to-r from-secondary3 via-primary-600 to-primary-900 bg-clip-text text-transparent">
-								Style Reveal
-							</span>
+							<span className="block mt-1 md:mt-2 text-black">Style Reveal</span>
 						</motion.h1>
 
 						<motion.div

@@ -172,159 +172,160 @@ const StoreKeeperReports = () => {
 		return result;
 	};
 
-	const processReportData = (orders: Order[], products: Product[], period: string): ProcessedReportData => {
-		const now = new Date();
-		const periodStart = getPeriodStart(now, period);
-		const previousPeriodStart = getPeriodStart(periodStart, period);
+const processReportData = (orders: Order[], products: Product[], period: string): ProcessedReportData => {
+	const now = new Date();
+	const periodStart = getPeriodStart(now, period);
+	const previousPeriodStart = getPeriodStart(periodStart, period);
 
-		// Filter orders by current period
-		const currentPeriodOrders = orders.filter(
-			(order) =>
-				new Date(order.createdAt) >= periodStart &&
+	// Filter orders by current period
+	const currentPeriodOrders = orders.filter(
+		(order) =>
+			new Date(order.createdAt) >= periodStart &&
+			order.status !== "cancelled" &&
+			order.paymentStatus === "paid"
+	);
+
+	// Filter orders by previous period
+	const previousPeriodOrders = orders.filter(
+		(order) =>
+			new Date(order.createdAt) >= previousPeriodStart &&
+			new Date(order.createdAt) < periodStart &&
+			order.status !== "cancelled" &&
+			order.paymentStatus === "paid"
+	);
+
+	// Calculate revenue
+	const currentRevenue = currentPeriodOrders.reduce((sum, order) => sum + order.total, 0);
+	const previousRevenue = previousPeriodOrders.reduce((sum, order) => sum + order.total, 0);
+	const revenueGrowth =
+		previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
+
+	// Calculate order metrics
+	const currentOrderCount = currentPeriodOrders.length;
+	const previousOrderCount = previousPeriodOrders.length;
+	const orderGrowth =
+		previousOrderCount > 0 ? ((currentOrderCount - previousOrderCount) / previousOrderCount) * 100 : 0;
+
+	// Product analytics
+	const totalProducts = products.filter((p) => p.isActive).length;
+	const lowStockProducts = products.filter(
+		(p) => p.stockCount <= 10 && p.stockCount > 0 && p.isActive
+	).length;
+	const outOfStockProducts = products.filter((p) => p.stockCount === 0 && p.isActive).length;
+
+	// Customer analytics
+	const customerEmails = new Set(currentPeriodOrders.map((order) => order.shippingAddress.email));
+	const previousCustomerEmails = new Set(previousPeriodOrders.map((order) => order.shippingAddress.email));
+	const newCustomers = Array.from(customerEmails).filter(
+		(email) => !previousCustomerEmails.has(email)
+	).length;
+	const returningCustomers = Array.from(customerEmails).filter((email) =>
+		previousCustomerEmails.has(email)
+	).length;
+
+	// Top products by sales
+	const productSales = new Map<string, { name: string; sales: number; revenue: number; image: string }>();
+	currentPeriodOrders.forEach((order) => {
+		order.items.forEach((item) => {
+			const existing = productSales.get(item.product) || {
+				name: item.name,
+				sales: 0,
+				revenue: 0,
+				image: item.image
+			};
+			existing.sales += item.quantity;
+			existing.revenue += item.price * item.quantity;
+			productSales.set(item.product, existing);
+		});
+	});
+
+	const topProducts = Array.from(productSales.entries())
+		.map(([id, data]) => ({ id, ...data }))
+		.sort((a, b) => b.sales - a.sales)
+		.slice(0, 10);
+
+	// Top categories
+	const categorySales = new Map<string, { sales: number; revenue: number }>();
+	currentPeriodOrders.forEach((order) => {
+		order.items.forEach((item) => {
+			const product = products.find((p) => p.id === item.product);
+			const category = product?.category || "Unknown";
+			const existing = categorySales.get(category) || { sales: 0, revenue: 0 };
+			existing.sales += item.quantity;
+			existing.revenue += item.price * item.quantity;
+			categorySales.set(category, existing);
+		});
+	});
+
+	const topCategories = Array.from(categorySales.entries())
+		.map(([category, data]) => ({ category, ...data }))
+		.sort((a, b) => b.revenue - a.revenue)
+		.slice(0, 5);
+
+	// Sales by month (last 6 months)
+	const salesByMonth: Array<{ month: string; revenue: number; orders: number }> = [];
+	for (let i = 5; i >= 0; i--) {
+		const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+		const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+
+		const monthOrders = orders.filter((order) => {
+			const orderDate = new Date(order.createdAt);
+			return (
+				orderDate >= monthStart &&
+				orderDate <= monthEnd &&
 				order.status !== "cancelled" &&
-				order.paymentStatus === "paid",
-		);
-
-		// Filter orders by previous period
-		const previousPeriodOrders = orders.filter(
-			(order) =>
-				new Date(order.createdAt) >= previousPeriodStart &&
-				new Date(order.createdAt) < periodStart &&
-				order.status !== "cancelled" &&
-				order.paymentStatus === "paid",
-		);
-
-		// Calculate revenue
-		const currentRevenue = currentPeriodOrders.reduce((sum, order) => sum + order.total, 0);
-		const previousRevenue = previousPeriodOrders.reduce((sum, order) => sum + order.total, 0);
-		const revenueGrowth =
-			previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
-
-		// Calculate order metrics
-		const currentOrderCount = currentPeriodOrders.length;
-		const previousOrderCount = previousPeriodOrders.length;
-		const orderGrowth =
-			previousOrderCount > 0 ? ((currentOrderCount - previousOrderCount) / previousOrderCount) * 100 : 0;
-
-		// Product analytics
-		const totalProducts = products.filter((p) => p.isActive).length;
-		const lowStockProducts = products.filter(
-			(p) => p.stockCount <= 10 && p.stockCount > 0 && p.isActive,
-		).length;
-		const outOfStockProducts = products.filter((p) => p.stockCount === 0 && p.isActive).length;
-
-		// Customer analytics
-		const customerEmails = new Set(currentPeriodOrders.map((order) => order.shippingAddress.email));
-		const previousCustomerEmails = new Set(previousPeriodOrders.map((order) => order.shippingAddress.email));
-		const newCustomers = Array.from(customerEmails).filter(
-			(email) => !previousCustomerEmails.has(email),
-		).length;
-		const returningCustomers = Array.from(customerEmails).filter((email) =>
-			previousCustomerEmails.has(email),
-		).length;
-
-		// Top products by sales
-		const productSales = new Map<string, { name: string; sales: number; revenue: number; image: string }>();
-		currentPeriodOrders.forEach((order) => {
-			order.items.forEach((item) => {
-				const existing = productSales.get(item.product) || {
-					name: item.name,
-					sales: 0,
-					revenue: 0,
-					image: item.image,
-				};
-				existing.sales += item.quantity;
-				existing.revenue += item.price * item.quantity;
-				productSales.set(item.product, existing);
-			});
+				order.paymentStatus === "paid"
+			);
 		});
 
-		const topProducts = Array.from(productSales.entries())
-			.map(([id, data]) => ({ id, ...data }))
-			.sort((a, b) => b.sales - a.sales)
-			.slice(0, 10);
-
-		// Top categories
-		const categorySales = new Map<string, { sales: number; revenue: number }>();
-		currentPeriodOrders.forEach((order) => {
-			order.items.forEach((item) => {
-				const product = products.find((p) => p.id === item.product);
-				const category = product?.category || "Unknown";
-				const existing = categorySales.get(category) || { sales: 0, revenue: 0 };
-				existing.sales += item.quantity;
-				existing.revenue += item.price * item.quantity;
-				categorySales.set(category, existing);
-			});
+		salesByMonth.push({
+			month: monthStart.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			revenue: monthOrders.reduce((sum, order) => sum + order.total, 0),
+			orders: monthOrders.length
 		});
+	}
 
-		const topCategories = Array.from(categorySales.entries())
-			.map(([category, data]) => ({ category, ...data }))
-			.sort((a, b) => b.revenue - a.revenue)
-			.slice(0, 5);
+	// Recent orders (safe .sort with spread)
+	const recentOrders = [...orders]
+		.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+		.slice(0, 5)
+		.map((order) => ({
+			id: order.id,
+			orderNumber: order.orderNumber,
+			customer: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+			total: order.total,
+			status: order.status,
+			date: order.createdAt
+		}));
 
-		// Sales by month (last 6 months)
-		const salesByMonth: Array<{ month: string; revenue: number; orders: number }> = [];
-		for (let i = 5; i >= 0; i--) {
-			const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-			const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-
-			const monthOrders = orders.filter((order) => {
-				const orderDate = new Date(order.createdAt);
-				return (
-					orderDate >= monthStart &&
-					orderDate <= monthEnd &&
-					order.status !== "cancelled" &&
-					order.paymentStatus === "paid"
-				);
-			});
-
-			salesByMonth.push({
-				month: monthStart.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
-				revenue: monthOrders.reduce((sum, order) => sum + order.total, 0),
-				orders: monthOrders.length,
-			});
-		}
-
-		// Recent orders
-		const recentOrders = orders
-			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-			.slice(0, 5)
-			.map((order) => ({
-				id: order.id,
-				orderNumber: order.orderNumber,
-				customer: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
-				total: order.total,
-				status: order.status,
-				date: order.createdAt,
-			}));
-
-		return {
-			revenue: {
-				current: currentRevenue,
-				previous: previousRevenue,
-				growth: revenueGrowth,
-			},
-			orders: {
-				current: currentOrderCount,
-				previous: previousOrderCount,
-				growth: orderGrowth,
-			},
-			products: {
-				total: totalProducts,
-				lowStock: lowStockProducts,
-				outOfStock: outOfStockProducts,
-			},
-			customers: {
-				total: customerEmails.size,
-				new: newCustomers,
-				returning: returningCustomers,
-			},
-			topProducts,
-			topCategories,
-			salesByMonth,
-			recentOrders,
-		};
+	return {
+		revenue: {
+			current: currentRevenue,
+			previous: previousRevenue,
+			growth: revenueGrowth
+		},
+		orders: {
+			current: currentOrderCount,
+			previous: previousOrderCount,
+			growth: orderGrowth
+		},
+		products: {
+			total: totalProducts,
+			lowStock: lowStockProducts,
+			outOfStock: outOfStockProducts
+		},
+		customers: {
+			total: customerEmails.size,
+			new: newCustomers,
+			returning: returningCustomers
+		},
+		topProducts,
+		topCategories,
+		salesByMonth,
+		recentOrders
 	};
+};
+
 
 	// Process report data with memoization
 	const reportData = useMemo(() => {

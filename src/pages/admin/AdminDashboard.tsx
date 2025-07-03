@@ -273,7 +273,7 @@ const AdminDashboard = () => {
 	const getActivityIcon = (type: string) => {
 		switch (type) {
 			case "user":
-				return <Users className="w-4 h-4 text-blue-600" />;
+				return <Users className="w-4 h-4 text-purple-600" />;
 			case "order":
 				return <ShoppingCart className="w-4 h-4 text-green-600" />;
 			case "inventory":
@@ -332,7 +332,7 @@ const AdminDashboard = () => {
 		return (
 			<div className="flex items-center justify-center h-64">
 				<div className="text-center">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
 					<p className="text-gray-600">Loading dashboard...</p>
 				</div>
 			</div>
@@ -349,7 +349,7 @@ const AdminDashboard = () => {
 				<button
 					onClick={handleRefresh}
 					disabled={isLoading}
-					className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+					className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
 				>
 					<RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
 					<span>Refresh</span>
@@ -357,10 +357,10 @@ const AdminDashboard = () => {
 			</div>
 
 			{/* Data Info Banner */}
-			<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+			<div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
 				<div className="flex items-center">
-					<Activity className="w-5 h-5 text-blue-600 mr-3" />
-					<div className="text-sm text-blue-700">
+					<Activity className="w-5 h-5 text-purple-600 mr-3" />
+					<div className="text-sm text-purple-700">
 						<p>
 							<strong>Live Data:</strong> {users.length} users • {orders.length} orders • {products.length}{" "}
 							products
@@ -374,8 +374,8 @@ const AdminDashboard = () => {
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
 				<div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
 					<div className="flex items-center">
-						<div className="p-2 bg-blue-100 rounded-lg">
-							<Users className="w-6 h-6 text-blue-600" />
+						<div className="p-2 bg-purple-100 rounded-lg">
+							<Users className="w-6 h-6 text-purple-600" />
 						</div>
 						<div className="ml-4">
 							<h3 className="text-lg font-bold text-gray-900">
@@ -485,7 +485,7 @@ const AdminDashboard = () => {
 							<p className="text-xs text-gray-500">{stats.totalUsers} total</p>
 						</button>
 						<button className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 text-left transition-colors">
-							<Activity className="w-5 h-5 text-blue-600 mb-1" />
+							<Activity className="w-5 h-5 text-purple-600 mb-1" />
 							<p className="text-sm font-medium">View Logs</p>
 							<p className="text-xs text-gray-500">System activity</p>
 						</button>
