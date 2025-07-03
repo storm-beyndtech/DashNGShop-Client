@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -16,95 +16,72 @@ import {
 	Loader2,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
+import { useAuth } from "../contexts/AuthContext";
 import Button from "../components/ui/Button";
-import { Product } from "@/data/types";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+	selectProducts,
+	selectProductLoading,
+	selectProductError,
+	selectHasBeenFetched,
+} from "@/redux/selectors/productsSelectors";
+import { selectIsInWishlist } from "@/redux/selectors/wishlistSelectors";
+import { fetchProducts } from "@/redux/thunks/products";
+import { toggleWishlistAndSync } from "@/redux/thunks/wishlist";
+import { useToastUtils } from "@/services/toast";
 
 const ProductDetailPage = () => {
 	const { id } = useParams<{ id: string }>();
+	const dispatch = useAppDispatch();
 	const { addItem } = useCart();
+	const { user } = useAuth();
+	const { showSuccessToast } = useToastUtils();
 
-	const [product, setProduct] = useState<Product | null>(null);
-	const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+	// Redux selectors
+	const products = useAppSelector(selectProducts);
+	const isLoading = useAppSelector(selectProductLoading);
+	const error = useAppSelector(selectProductError);
+	const hasBeenFetched = useAppSelector(selectHasBeenFetched);
+
+	// Find product from Redux store
+	const product = useMemo(() => products.find((p) => p.id === id), [products, id]);
+
+	// Get wishlist status from Redux
+	const isWishlisted = useAppSelector((state) => (product ? selectIsInWishlist(state, product.id) : false));
+
+	// Related products from same category
+	const relatedProducts = useMemo(() => {
+		if (!product) return [];
+		return products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+	}, [products, product]);
+
+	// Local state
 	const [selectedImage, setSelectedImage] = useState(0);
 	const [selectedSize, setSelectedSize] = useState("");
 	const [selectedColor, setSelectedColor] = useState("");
 	const [quantity, setQuantity] = useState(1);
-	const [isWishlisted, setIsWishlisted] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
-	const [isPageLoading, setIsPageLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-	// Get base URL from environment
-	const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-	// Fetch product data
+	// Fetch products if not already fetched
 	useEffect(() => {
-		const fetchProduct = async () => {
-			if (!id) return;
-
-			try {
-				setIsPageLoading(true);
-				setError(null);
-
-				const response = await fetch(`${baseUrl}/products/${id}`);
-
-				if (!response.ok) {
-					if (response.status === 404) {
-						setError("Product not found");
-					} else {
-						throw new Error(`Failed to fetch product: ${response.status}`);
-					}
-					return;
-				}
-
-				const data = await response.json();
-				const productData = data.product || data;
-
-				setProduct(productData);
-
-				// Set default selections
-				if (productData.sizes && productData.sizes.length > 0) {
-					setSelectedSize(productData.sizes[0]);
-				}
-				if (productData.colors && productData.colors.length > 0) {
-					setSelectedColor(productData.colors[0]);
-				}
-
-				// Reset selected image to 0 for new product
-				setSelectedImage(0);
-
-				// Fetch related products
-				if (productData.category) {
-					fetchRelatedProducts(productData.category, productData.id);
-				}
-			} catch (err) {
-				console.error("Error fetching product:", err);
-				setError(err instanceof Error ? err.message : "Failed to load product");
-			} finally {
-				setIsPageLoading(false);
-			}
-		};
-
-		fetchProduct();
-	}, [id, baseUrl]);
-
-	// Fetch related products
-	const fetchRelatedProducts = async (category: string, currentProductId: string) => {
-		try {
-			const response = await fetch(
-				`${baseUrl}/products?category=${encodeURIComponent(category)}&limit=4&exclude=${currentProductId}`,
-			);
-
-			if (response.ok) {
-				const data = await response.json();
-				const relatedData = data.products || data || [];
-				setRelatedProducts(relatedData.filter((p: Product) => p.id !== currentProductId).slice(0, 4));
-			}
-		} catch (err) {
-			console.error("Error fetching related products:", err);
-			// Non-critical error, just log it
+		if (!hasBeenFetched && !isLoading) {
+			dispatch(fetchProducts());
 		}
-	};
+	}, [dispatch, hasBeenFetched, isLoading]);
+
+	// Set default selections when product loads
+	useEffect(() => {
+		if (product) {
+			if (product.sizes && product.sizes.length > 0) {
+				setSelectedSize(product.sizes[0]);
+			}
+			if (product.colors && product.colors.length > 0) {
+				setSelectedColor(product.colors[0]);
+			}
+			setSelectedImage(0);
+			setQuantity(1);
+		}
+	}, [product]);
 
 	const formatPrice = (price: number) => {
 		return new Intl.NumberFormat("en-NG", {
@@ -115,9 +92,9 @@ const ProductDetailPage = () => {
 	};
 
 	const handleAddToCart = () => {
-		if (!product || !selectedSize || !selectedColor || !product.images || product.images.length === 0) return;
+		if (!product || !selectedSize || !selectedColor) return;
 
-		setIsLoading(true);
+		setIsAddingToCart(true);
 
 		// Simulate API delay
 		setTimeout(() => {
@@ -131,8 +108,31 @@ const ProductDetailPage = () => {
 				maxStock: product.stockCount,
 				quantity,
 			});
-			setIsLoading(false);
+
+			showSuccessToast(`${product.name} added to cart`);
+			setIsAddingToCart(false);
 		}, 500);
+	};
+
+	const handleWishlist = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (!product) return;
+    console.log("Handling wishlist for product:", product.id);
+    
+		if (!user) {
+			dispatch(toggleWishlistAndSync(product.id));
+		} else {
+			dispatch(toggleWishlistAndSync(product.id, user));
+		}
+
+		// Show appropriate toast message
+		if (isWishlisted) {
+			showSuccessToast(`${product.name} removed from wishlist`);
+		} else {
+			showSuccessToast(`${product.name} added to wishlist`);
+		}
 	};
 
 	const handleShare = async () => {
@@ -149,11 +149,12 @@ const ProductDetailPage = () => {
 		} else {
 			// Fallback: copy URL to clipboard
 			navigator.clipboard.writeText(window.location.href);
+			showSuccessToast("Link copied to clipboard");
 		}
 	};
 
-	// Early return for loading and error states to prevent rendering with null product
-	if (isPageLoading) {
+	// Loading state
+	if (isLoading || !hasBeenFetched) {
 		return (
 			<div className="min-h-screen bg-white flex items-center justify-center">
 				<div className="text-center">
@@ -164,47 +165,52 @@ const ProductDetailPage = () => {
 		);
 	}
 
-	if (error || !product) {
+	// Error state
+	if (error) {
 		return (
 			<div className="min-h-screen bg-neutral-50 flex items-center justify-center">
 				<div className="text-center">
-					<h1 className="text-2xl font-serif font-bold text-neutral-900 mb-4">
-						{error === "Product not found" ? "Product Not Found" : "Error Loading Product"}
-					</h1>
-					<p className="text-neutral-600 mb-6">
-						{error === "Product not found"
-							? "The product you're looking for doesn't exist."
-							: error || "Something went wrong while loading the product."}
-					</p>
+					<h1 className="text-2xl font-serif font-bold text-neutral-900 mb-4">Error Loading Products</h1>
+					<p className="text-neutral-600 mb-6">{error}</p>
 					<div className="space-x-4">
-						<Link to="/products" className="btn-primary">
+						<button
+							onClick={() => dispatch(fetchProducts())}
+							className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+						>
+							Try Again
+						</button>
+						<Link
+							to="/products"
+							className="px-6 py-2 bg-neutral-200 text-neutral-900 rounded-md hover:bg-neutral-300 transition-colors"
+						>
 							Back to Products
 						</Link>
-						{error !== "Product not found" && (
-							<button onClick={() => window.location.reload()} className="btn-secondary">
-								Try Again
-							</button>
-						)}
 					</div>
 				</div>
 			</div>
 		);
 	}
 
-	// Additional safety check - ensure product has required properties
-	if (!product.images || product.images.length === 0) {
+	// Product not found
+	if (!product) {
 		return (
 			<div className="min-h-screen bg-neutral-50 flex items-center justify-center">
 				<div className="text-center">
-					<h1 className="text-2xl font-serif font-bold text-neutral-900 mb-4">Invalid Product Data</h1>
-					<p className="text-neutral-600 mb-6">This product is missing required information.</p>
-					<Link to="/products" className="btn-primary">
+					<h1 className="text-2xl font-serif font-bold text-neutral-900 mb-4">Product Not Found</h1>
+					<p className="text-neutral-600 mb-6">The product you're looking for doesn't exist.</p>
+					<Link
+						to="/products"
+						className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+					>
 						Back to Products
 					</Link>
 				</div>
 			</div>
 		);
 	}
+
+	// Use original images
+	const displayImages = product.images;
 
 	return (
 		<div className="min-h-screen bg-white">
@@ -241,21 +247,17 @@ const ProductDetailPage = () => {
 						{/* Main Image */}
 						<div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-neutral-100">
 							<img
-								src={product.images[selectedImage] || product.images[0]}
+								src={displayImages[selectedImage]}
 								alt={product.name}
 								className="w-full h-full object-cover"
-								onError={(e) => {
-									// Fallback for broken images
-									e.currentTarget.src = "/placeholder-image.jpg";
-								}}
 							/>
 
 							{/* Image Navigation */}
-							{product.images.length > 1 && (
+							{displayImages.length > 1 && (
 								<>
 									<button
 										onClick={() =>
-											setSelectedImage((prev) => (prev === 0 ? product.images.length - 1 : prev - 1))
+											setSelectedImage((prev) => (prev === 0 ? displayImages.length - 1 : prev - 1))
 										}
 										className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-colors"
 									>
@@ -263,7 +265,7 @@ const ProductDetailPage = () => {
 									</button>
 									<button
 										onClick={() =>
-											setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1))
+											setSelectedImage((prev) => (prev === displayImages.length - 1 ? 0 : prev + 1))
 										}
 										className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-colors"
 									>
@@ -288,9 +290,9 @@ const ProductDetailPage = () => {
 						</div>
 
 						{/* Thumbnail Images */}
-						{product.images.length > 1 && (
+						{displayImages.length > 1 && (
 							<div className="grid grid-cols-4 gap-2">
-								{product.images.map((image, index) => (
+								{displayImages.map((image, index) => (
 									<button
 										key={index}
 										onClick={() => setSelectedImage(index)}
@@ -323,22 +325,26 @@ const ProductDetailPage = () => {
 							<div className="flex items-center justify-between mb-2">
 								<span className="text-sm text-primary-600 font-medium">{product.category}</span>
 								<div className="flex items-center space-x-2">
-									<button
-										onClick={() => setIsWishlisted(!isWishlisted)}
+									<motion.button
+										onClick={handleWishlist}
 										className={`p-2 rounded-full transition-colors ${
 											isWishlisted
 												? "bg-red-100 text-red-600"
 												: "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
 										}`}
+										whileHover={{ scale: 1.05 }}
+										whileTap={{ scale: 0.95 }}
 									>
 										<Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
-									</button>
-									<button
+									</motion.button>
+									<motion.button
 										onClick={handleShare}
 										className="p-2 bg-neutral-100 text-neutral-600 hover:bg-neutral-200 rounded-full transition-colors"
+										whileHover={{ scale: 1.05 }}
+										whileTap={{ scale: 0.95 }}
 									>
 										<Share2 className="w-5 h-5" />
-									</button>
+									</motion.button>
 								</div>
 							</div>
 
@@ -401,7 +407,7 @@ const ProductDetailPage = () => {
 								<h3 className="font-medium text-neutral-900 mb-3">Size</h3>
 								<div className="flex flex-wrap gap-2">
 									{product.sizes.map((size) => (
-										<button
+										<motion.button
 											key={size}
 											onClick={() => setSelectedSize(size)}
 											className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
@@ -409,9 +415,11 @@ const ProductDetailPage = () => {
 													? "border-neutral-900 bg-neutral-900 text-white"
 													: "border-neutral-300 hover:border-neutral-400"
 											}`}
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
 										>
 											{size}
-										</button>
+										</motion.button>
 									))}
 								</div>
 							</div>
@@ -423,7 +431,7 @@ const ProductDetailPage = () => {
 								<h3 className="font-medium text-neutral-900 mb-3">Color: {selectedColor}</h3>
 								<div className="flex flex-wrap gap-2">
 									{product.colors.map((color) => (
-										<button
+										<motion.button
 											key={color}
 											onClick={() => setSelectedColor(color)}
 											className={`px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
@@ -431,9 +439,11 @@ const ProductDetailPage = () => {
 													? "border-neutral-900 bg-neutral-900 text-white"
 													: "border-neutral-300 hover:border-neutral-400"
 											}`}
+											whileHover={{ scale: 1.02 }}
+											whileTap={{ scale: 0.98 }}
 										>
 											{color}
-										</button>
+										</motion.button>
 									))}
 								</div>
 							</div>
@@ -466,8 +476,8 @@ const ProductDetailPage = () => {
 						<div className="space-y-3">
 							<Button
 								onClick={handleAddToCart}
-								disabled={!product.inStock || isLoading}
-								isLoading={isLoading}
+								disabled={!product.inStock || isAddingToCart || !selectedSize || !selectedColor}
+								isLoading={isAddingToCart}
 								className="w-full"
 								size="lg"
 							>
@@ -478,6 +488,14 @@ const ProductDetailPage = () => {
 							{product.stockCount <= 5 && product.inStock && (
 								<p className="text-sm text-orange-600 text-center">
 									Only {product.stockCount} left in stock!
+								</p>
+							)}
+
+							{(!selectedSize || !selectedColor) && (
+								<p className="text-sm text-neutral-500 text-center">
+									Please select {!selectedSize ? "size" : ""}
+									{!selectedSize && !selectedColor ? " and " : ""}
+									{!selectedColor ? "color" : ""} to add to cart
 								</p>
 							)}
 						</div>

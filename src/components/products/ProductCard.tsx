@@ -51,7 +51,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
 			size: product.sizes[0],
 			color: product.colors[0],
 			maxStock: product.stockCount,
-		});
+    });
+    
+    showSuccessToast(`${product.name} added to cart`);
 	};
 
 	const handleWishlist = (e: React.MouseEvent) => {
