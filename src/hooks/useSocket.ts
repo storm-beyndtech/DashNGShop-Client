@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch } from "@/redux/hooks";
 import { addNewProduct, applyUpdatedProduct } from "@/redux/slices/productsSlice";
-import { addNewOrder, updateOrderStatus } from "@/redux/slices/ordersSlice";
+import { addNewOrder, updateOrder, updateOrderStatus } from "@/redux/slices/ordersSlice";
 import socket from "@/utils/socket";
 
 export const useSocket = () => {
@@ -24,6 +24,10 @@ export const useSocket = () => {
 
 		socket.on("order-created", (order) => {
 			dispatch(addNewOrder(order));
+		});
+
+		socket.on("order-updated", (order) => {
+			dispatch(updateOrder(order));
 		});
 
 		socket.on("order-status-changed", ({ orderId, status }) => {

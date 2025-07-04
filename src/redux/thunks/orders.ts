@@ -26,6 +26,18 @@ interface CreateOrderPayload {
   paymentDetails?: any;
 }
 
+interface UpdateOrderPayload {
+  orderId: string;
+  updates: Partial<Pick<Order, 
+    | 'status' 
+    | 'paymentStatus' 
+    | 'trackingNumber' 
+    | 'estimatedDelivery' 
+    | 'notes'
+    | 'updatedAt'
+  >>;
+}
+
 export const fetchOrders = createAsyncThunk<Order[]>(
   "orders/fetchAll",
   async (_, thunkAPI) => {
@@ -66,6 +78,17 @@ export const createOrder = createAsyncThunk<Order, CreateOrderPayload>(
       return await orderService.createOrder(data);
     } catch (error) {
       return thunkAPI.rejectWithValue("Failed to create order");
+    }
+  }
+);
+
+export const updateOrder = createAsyncThunk<Order, UpdateOrderPayload>(
+  "orders/update",
+  async ({ orderId, updates }, thunkAPI) => {
+    try {
+      return await orderService.updateOrder(orderId, updates);
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to update order");
     }
   }
 );

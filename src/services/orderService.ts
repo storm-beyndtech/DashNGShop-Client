@@ -35,6 +35,15 @@ interface CreateOrderData {
 	paymentDetails?: any;
 }
 
+interface UpdateOrderData {
+	status?: Order["status"];
+	paymentStatus?: Order["paymentStatus"];
+	trackingNumber?: string;
+	estimatedDelivery?: string;
+	notes?: string;
+	updatedAt?: string;
+}
+
 class OrderService {
 	async getOrders(): Promise<Order[]> {
 		try {
@@ -76,6 +85,16 @@ class OrderService {
 		}
 	}
 
+	async updateOrder(id: string, updates: UpdateOrderData): Promise<Order> {
+		try {
+			const response = await axios.patch(`${import.meta.env.VITE_API_URL}/orders/${id}`, updates);
+			return response.data;
+		} catch (error) {
+			console.error("Error updating order:", error);
+			throw error;
+		}
+	}
+
 	async updateOrderStatus(id: string, status: string, trackingNumber?: string): Promise<Order> {
 		try {
 			const response = await axios.patch(`${import.meta.env.VITE_API_URL}/orders/${id}/status`, {
@@ -101,5 +120,3 @@ class OrderService {
 }
 
 export const orderService = new OrderService();
-
-
